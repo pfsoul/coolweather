@@ -2,6 +2,7 @@ package com.coolweather.android;
 
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -88,7 +89,7 @@ public class ChooseAreaFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.choose_area,container,false);
-        Log.d(TAG, "onCreateView: ");
+        //Log.d(TAG, "onCreateView: ");
         titleText = (TextView) view.findViewById(R.id.title_text);
         backButton = (Button) view.findViewById(R.id.back_button);
         listView = (ListView) view.findViewById(R.id.list_view);
@@ -109,6 +110,12 @@ public class ChooseAreaFragment extends Fragment {
                 }else if(currentLevel == LEVEL_CITY){
                     selectedCity = cityList.get(position);
                     querycounties();
+                }else if(currentLevel == LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
@@ -123,7 +130,7 @@ public class ChooseAreaFragment extends Fragment {
             }
         });
         queryProvinces();
-        Log.d(TAG, "onActivityCreated: ");
+        //Log.d(TAG, "onActivityCreated: ");
     }
 
     /**
@@ -176,9 +183,9 @@ public class ChooseAreaFragment extends Fragment {
     private void querycounties(){
         titleText.setText(selectedCity.getCityName());
         backButton.setVisibility(View.VISIBLE);
-        Log.d(String.valueOf(selectedCity.getId()), "querycounties: ");
+        //Log.d(String.valueOf(selectedCity.getId()), "querycounties: ");
         countyList = DataSupport.where("cityid = ?",String.valueOf(selectedCity.getId())).find(County.class);
-        Log.d(TAG, "querycounties: ");
+        //Log.d(TAG, "querycounties: ");
         if(countyList.size() > 0){
             dataList.clear();
             for(County county:countyList){
@@ -215,7 +222,7 @@ public class ChooseAreaFragment extends Fragment {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d(type, "onResponse: ");
+               // Log.d(type, "onResponse: ");
                 String responseText = response.body().string();
                 boolean result = false;
                 if("province".equals(type)){
@@ -223,7 +230,7 @@ public class ChooseAreaFragment extends Fragment {
                 }else if("city".equals((type))){
                     result = Utility.handleCityResponse(responseText,selectedProvince.getId());
                 }else if("county".equals(type)){
-                    Log.d(TAG, "onResponse: ");
+                    //Log.d(TAG, "onResponse: ");
                     result = Utility.handleCountyResponse(responseText,selectedCity.getId());
                 }
                 if(result){
